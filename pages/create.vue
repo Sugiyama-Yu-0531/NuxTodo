@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import PageBase from '~/components/PageBase.vue';
-import TaskList from '~/components/TaskList.vue';
 
 </script>
 
 <template>
-  <PageBase page-title="タスクリスト">
+  <PageBase page-title="新規作成">
     <v-container>
-      <TaskList />
+      <div>新規作成</div>
     </v-container>
   </PageBase>
 </template>
