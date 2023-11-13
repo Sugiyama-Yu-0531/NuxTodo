@@ -4,6 +4,11 @@ import Card from '~/components/Card.vue';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 
+// ログインしてなければリダイレクトするやーつ
+definePageMeta({
+  middleware: ['auth']
+})
+
 const title = ref<string>('');
 const remarks = ref<string>('');
 const date = ref();
