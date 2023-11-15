@@ -3,30 +3,48 @@ import PageBase from '~/components/PageBase.vue';
 import Card from '~/components/Card.vue';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
+import {
+  getFirestore,
+  collection,
+  addDoc,
+} from "firebase/firestore";
 
-// ログインしてなければリダイレクトするやーつ
 definePageMeta({
   middleware: ['auth']
 })
 
 const title = ref<string>('');
 const remarks = ref<string>('');
-const date = ref();
+const date = ref<string>('');
+const pickerData = ref<Date>();
 const dialog = ref<boolean>(false);
+const auth = useAuth();
 
-const {addList} = useTaskList();
+const onChangePicker = (dateValue?: Date) => {
+  if (!dateValue) {
+    dialog.value = false;
+    return;
+  }
 
-const handleSubmit = () => {
-  addList({
+  date.value = format(dateValue, 'yyyy/MM/dd');
+  dialog.value = false;
+}
+
+const handleSubmit = async () => {
+  const db = getFirestore();
+
+  await addDoc(collection(db, 'tasks'), {
     id: uuidv4(),
+    userId: auth.user.value?.uid,
     title: title.value,
-    date: format(date.value, 'yyyy/MM/dd'),
+    date: date.value,
     remarks: remarks.value,
     isDeleted: false,
     isCompleted: false,
-  })
+    isImportant: false,
+  });
 
-  console.log(format(date.value, 'yyyy/MM/dd'))
+  alert('追加しました！')
 }
 
 </script>
@@ -55,16 +73,15 @@ const handleSubmit = () => {
         </div>
 
         <v-text-field
-          :value="!date ? '' :format(new Date(date), 'yyyy/MM/dd')"
+          v-model="date"
           @click="() => dialog = true"
           variant="outlined"
           label="期限日"
         />
-        <v-dialog v-model="dialog">
+        <v-dialog v-model="dialog" width="360" max-width="unset">
           <v-date-picker
-            width="350"
-            v-model="date"
-            @update:modelValue="dialog=false"
+            v-model="pickerData"
+            @update:modelValue="onChangePicker(pickerData)"
           />
         </v-dialog>
         <v-btn @click="handleSubmit" variant="outlined">作成</v-btn>

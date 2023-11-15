@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useAuth } from '~/composables/useAuth';
 import { menuList } from '~/constants/menu';
 
-const drawer = ref(false);
+const auth = useAuth();
+const drawer = ref<boolean>(false);
 
 const handleDrawer = () => {
   drawer.value = !drawer.value;
@@ -10,15 +12,18 @@ const handleDrawer = () => {
 
 <template>
   <v-app-bar color="blue" height="52">
-    <v-row class="ma-0" justify="space-between" align="center">
+    <v-row class="ma-0 pr-6" justify="space-between" align="center">
       <v-col class="pa-0" cols="auto">
         <v-btn :icon="!drawer ? 'mdi-menu' : 'mdi-close'" @click="handleDrawer"/>
       </v-col>
       <v-col class="pa-0 pl-4">
         <span>NuxTodo</span>
       </v-col>
-      <v-col class="pa-0 pr-6" cols="auto">
-        <span>メンバ 太郎</span>
+      <v-col class="pa-0" cols="auto">
+        <span>{{ auth.user.value?.email }}</span>
+      </v-col>
+      <v-col class="pa-0 pl-4" cols="auto">
+        <v-btn variant="outlined" @click="auth.signOut">サインアウト</v-btn>
       </v-col>
     </v-row>
   </v-app-bar>

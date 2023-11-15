@@ -4,10 +4,12 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
+  type User,
 } from 'firebase/auth'
 
 export const useAuth = () => {
   const token = useState<string | null>('token', () => null)
+  const user = useState<User | null>('user', () => null)
 
   // サインアップ
   const signUp = async (email: string, password: string) => {
@@ -16,12 +18,19 @@ export const useAuth = () => {
 
       createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log(userCredential)
         // サインアップできたらログインする
         resolve("success")
+        user.value = userCredential.user;
+        userCredential.user
+        .getIdToken()
+          .then((idToken) => {
+            token.value = idToken
+          })
+        .catch()
+
+        navigateTo('/')
       })
       .catch((error) => {
-        console.log(error)
         const errorMessage = error.message;
         resolve(errorMessage)
       })
@@ -35,6 +44,7 @@ export const useAuth = () => {
 
       return signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
+          user.value = userCredential.user;
           userCredential.user
             .getIdToken()
               .then((idToken) => {
@@ -54,7 +64,9 @@ export const useAuth = () => {
       firebaseSignOut(auth)
         .then(() => {
           token.value = null
+          user.value = null
           resolve()
+          navigateTo('/login')
         })
         .catch((error) => {
           reject(error)
@@ -71,17 +83,19 @@ export const useAuth = () => {
 
       onAuthStateChanged(
         auth,
-        (user) => {
-          if (user) {
-            user
+        (userData) => {
+          if (userData) {
+            userData
               .getIdToken()
               .then((idtoken) => {
                 token.value = idtoken
+                user.value = userData
                 resolve()
               })
               .catch(reject)
           } else {
             token.value = null
+            user.value = null
             resolve()
           }
         },
@@ -97,6 +111,7 @@ export const useAuth = () => {
     signIn,
     signOut,
     token,
+    user,
     checkAuthState,
   }
 }
