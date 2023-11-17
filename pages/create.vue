@@ -5,8 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 import {
   getFirestore,
-  collection,
-  addDoc,
+  doc,
+  setDoc
 } from "firebase/firestore";
 
 definePageMeta({
@@ -19,6 +19,7 @@ const date = ref<string>('');
 const pickerData = ref<Date>();
 const dialog = ref<boolean>(false);
 const auth = useAuth();
+const { openMessageBox } = useMessageBox();
 
 const onChangePicker = (dateValue?: Date) => {
   if (!dateValue) {
@@ -31,20 +32,25 @@ const onChangePicker = (dateValue?: Date) => {
 }
 
 const handleSubmit = async () => {
-  const db = getFirestore();
+  openMessageBox(`入力した内容で\nタスクを作成しますか？`, async () => {
+    if (!title.value || !date) {
+      alert('必須項目を入力してください')
+      return;
+    }
 
-  await addDoc(collection(db, 'tasks'), {
-    id: uuidv4(),
-    userId: auth.user.value?.uid,
-    title: title.value,
-    date: date.value,
-    remarks: remarks.value,
-    isDeleted: false,
-    isCompleted: false,
-    isImportant: false,
-  });
+    const db = getFirestore();
+    const uuid = uuidv4();
 
-  alert('追加しました！')
+    await setDoc(doc(db, 'tasks', uuid), {
+      id: uuid,
+      userId: auth.user.value?.uid,
+      title: title.value,
+      date: date.value,
+      remarks: remarks.value,
+      isCompleted: false,
+      isImportant: false,
+    });
+  })
 }
 
 </script>
@@ -58,7 +64,9 @@ const handleSubmit = async () => {
             v-model="title"
             label="タイトル"
             variant="outlined"
-            class="shrink"
+            :rules="[(value) => {
+              return !!value ? true : 'この項目は必須入力です'
+            }]"
             clearable
           />
         </div>
@@ -77,6 +85,10 @@ const handleSubmit = async () => {
           @click="() => dialog = true"
           variant="outlined"
           label="期限日"
+          :rules="[(value) => {
+              return !!value ? true : 'この項目は必須入力です'
+            }]"
+          clearable
         />
         <v-dialog v-model="dialog" width="360" max-width="unset">
           <v-date-picker
@@ -84,7 +96,7 @@ const handleSubmit = async () => {
             @update:modelValue="onChangePicker(pickerData)"
           />
         </v-dialog>
-        <v-btn @click="handleSubmit" variant="outlined">作成</v-btn>
+        <v-btn class="mt-4" @click="handleSubmit" variant="outlined" color="primary">作成</v-btn>
       </Card>
     </v-container>
   </PageBase>

@@ -4,7 +4,15 @@ export type TaskList = {
   title: string;
   date: string;
   remarks: string;
-  isDeleted: boolean;
+  isCompleted: boolean;
+  isImportant: boolean;
+}
+
+export type NoIdTaskList = {
+  userId: string;
+  title: string;
+  date: string;
+  remarks: string;
   isCompleted: boolean;
   isImportant: boolean;
 }

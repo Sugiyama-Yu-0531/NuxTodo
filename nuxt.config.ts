@@ -26,5 +26,8 @@ export default defineNuxtConfig({
         transformAssetUrls,
       }
     }
+  },
+  experimental: {
+    renderJsonPayloads: false
   }
 })

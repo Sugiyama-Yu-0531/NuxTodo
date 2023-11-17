@@ -7,5 +7,6 @@ import AppHeader from '~/components/AppHeader.vue';
   <v-app>
     <AppHeader />
     <slot />
+    <MessageBox />
   </v-app>
 </template>

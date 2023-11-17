@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import PageBase from '~/components/PageBase.vue';
 import TaskList from '~/components/TaskList.vue';
-import { type TaskList as TaskListType } from '~/types/taskList';
+import {
+  type TaskList as TaskListType,
+  type NoIdTaskList
+} from '~/types/taskList';
 import {
   getFirestore,
   collection,
   query,
   where,
-  getDocs,
+onSnapshot,
 } from "firebase/firestore";
 
 definePageMeta({
@@ -16,19 +19,21 @@ definePageMeta({
 
 const auth = useAuth();
 const taskList = ref<TaskListType[]>([])
+const {openMessageBox} = useMessageBox();
 
 onMounted(async () => {
-  taskList.value = [];
-
   const db = getFirestore();
   const q = query(collection(db, 'tasks'), where('userId', "==", auth.user.value?.uid));
-  const querySnapshot = await getDocs(q);
 
-  querySnapshot.forEach((doc) => {
-    taskList.value.push(doc.data() as TaskListType)
-    console.log(doc.id, " => ", doc.data());
-  });
-})
+  onSnapshot(q, (querySnapshot) => {
+    taskList.value = [];
+    querySnapshot.forEach((doc) => {
+      taskList.value.push({id: doc.id, ...doc.data() as NoIdTaskList})
+    });
+  })
+});
+
+const aaa = () => console.log('やあ！')
 
 </script>
 
