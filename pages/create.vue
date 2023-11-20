@@ -107,5 +107,4 @@ const handleSubmit = async () => {
   max-width: 400px;
 }
 
-
 </style>

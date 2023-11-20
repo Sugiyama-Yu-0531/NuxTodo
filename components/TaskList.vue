@@ -7,12 +7,19 @@ const props = defineProps({
   taskList: {type: Array<TaskList>, required: true},
 })
 
+const { openMessageBox } = useMessageBox();
+
+// 削除
 const deleteTask = async (id: string) => {
-  const db = getFirestore();
-  await deleteDoc(doc(db, 'tasks', id));
-  // alert('対象のタスクを削除しました');
+  openMessageBox('対象のタスクを削除しますか？', async () => {
+    const db = getFirestore();
+    await deleteDoc(doc(db, 'tasks', id));
+
+    alert('対象のタスクを削除しました');
+  });
 }
 
+// 重要化/重要化解除
 const changeFlag = async (id: string, important: boolean) => {
   const db = getFirestore();
   await updateDoc(doc(db, 'tasks', id), {
@@ -20,6 +27,7 @@ const changeFlag = async (id: string, important: boolean) => {
   });
 }
 
+// 完了/未完了
 const changeComplete = async (id: string, complete: boolean) => {
   const db = getFirestore();
   await updateDoc(doc(db, 'tasks', id), {
@@ -38,19 +46,51 @@ const changeComplete = async (id: string, complete: boolean) => {
             <span>{{ `期限：${item.date}` }}</span>
           </v-col>
           <v-col cols="auto" class="pa-0">
-            <v-btn icon="mdi-delete" density="compact" variant="text" @click="deleteTask(item.id)" />
+            <v-tooltip text="削除" location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-delete"
+                  density="compact"
+                  variant="text"
+                  @click="deleteTask(item.id)"
+                />
+              </template>
+            </v-tooltip>
           </v-col>
           <v-col cols="auto" class="pa-0 pl-1">
-            <v-btn icon="mdi-check" density="compact" variant="text" @click="changeComplete(item.id, item.isCompleted)"/>
+            <v-tooltip
+              :text="item.isCompleted ? '未完了に戻す' : '完了にする'"
+              location="top"
+            >
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-check"
+                  density="compact"
+                  variant="text"
+                  :color="item.isCompleted ? 'success' : ''"
+                  @click="changeComplete(item.id, item.isCompleted)"
+                />
+              </template>
+            </v-tooltip>
           </v-col>
           <v-col cols="auto" class="pa-0 pl-1">
-            <v-btn
-              icon="mdi-flag-variant"
-              density="compact"
-              variant="text"
-              :color="item.isImportant ? 'red' : ''"
-              @click="changeFlag(item.id, item.isImportant)"
-            />
+            <v-tooltip
+              :text="item.isImportant ? '重要リストから外す' : '重要リストに追加'"
+              location="top"
+            >
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-flag-variant"
+                  density="compact"
+                  variant="text"
+                  :color="item.isImportant ? 'red' : ''"
+                  @click="changeFlag(item.id, item.isImportant)"
+                />
+              </template>
+            </v-tooltip>
           </v-col>
         </v-row>
       </Card>

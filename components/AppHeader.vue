@@ -12,7 +12,7 @@ const handleDrawer = () => {
 
 <template>
   <v-app-bar color="blue" height="52">
-    <v-row class="ma-0 pr-6" justify="space-between" align="center">
+    <v-row class="ma-0" justify="space-between" align="center">
       <v-col class="pa-0" cols="auto">
         <v-btn :icon="!drawer ? 'mdi-menu' : 'mdi-close'" @click="handleDrawer"/>
       </v-col>
@@ -20,10 +20,18 @@ const handleDrawer = () => {
         <span>NuxTodo</span>
       </v-col>
       <v-col class="pa-0" cols="auto">
-        <span>{{ auth.user.value?.email }}</span>
+        <span>{{ auth.user.value?.email?.replace('@gmail.com', '') }}</span>
       </v-col>
-      <v-col class="pa-0 pl-4" cols="auto">
-        <v-btn variant="outlined" @click="auth.signOut">サインアウト</v-btn>
+      <v-col class="pa-0 pl-2" cols="auto">
+        <v-tooltip text="サインアウト" location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-logout"
+              @click="auth.signOut"
+            />
+          </template>
+        </v-tooltip>
       </v-col>
     </v-row>
   </v-app-bar>

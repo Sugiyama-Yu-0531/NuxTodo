@@ -23,7 +23,7 @@ const taskList = ref<TaskListType[]>([])
 
 onMounted(async () => {
   const db = getFirestore();
-  const q = query(collection(db, 'tasks'), where('userId', '==', auth.user.value?.uid), where('isCompleted', '==', false), orderBy('date'));
+  const q = query(collection(db, 'tasks'), where('userId', '==', auth.user.value?.uid), where('isImportant', '==', true), orderBy('date'));
 
   onSnapshot(q, (querySnapshot) => {
     taskList.value = [];
@@ -36,7 +36,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <PageBase page-title="タスクリスト">
+  <PageBase page-title="重要タスクリスト">
     <v-container>
       <TaskList :task-list="taskList"/>
     </v-container>
